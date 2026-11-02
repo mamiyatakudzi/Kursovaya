@@ -4,75 +4,60 @@
 #include <math.h>
 #include <locale.h>
 
-double fa(double x);
-double fb(double x);
+double Y(double x);
+double V(double x);
 
 int main(void)
 {
     setlocale(LC_ALL, ".UTF-8");
 
-    printf("--- Задание 1 ---\n\n");
+    int choice;
+    double x_start, x_end, step;
 
-    double x_val;
-    int menu1;
+    printf("=== Вариант 27. Селиванов Эрик Микаелевич ===\n\n");
 
-    printf("Введите значение x: ");
-    scanf("%lf", &x_val);
+    printf("Выберите функцию (1 - Y(x), 2 - V(x)): ");
+    scanf("%d", &choice);
 
-    printf("Выберите действие:\n");
-    printf("1 - Расчет Y(x)\n");
-    printf("2 - Расчет V(x)\n");
-    printf("3 - Произведение, разность квадратов и удвоенная сумма функций\n");
-    printf("Ваш выбор: ");
-    scanf("%d", &menu1);
+    printf("Введите X_start, X_end и шаг: ");
+    scanf("%lf %lf %lf", &x_start, &x_end, &step);
 
-    double res_a, res_b;
+    printf("\n-------------------------\n");
+    printf("|    X     |   Результат |\n");
+    printf("-------------------------\n");
 
-    switch (menu1)
+    for (double x = x_start; x <= x_end + (step * 0.01); x += step)
     {
-    case 1:
-        printf("Y(x) = %lf\n", fa(x_val));
-        break;
+        double res = (choice == 1) ? Y(x) : V(x);
 
-    case 2:
-        printf("V(x) = %lf\n", fb(x_val));
-        break;
+        int is_err = (choice == 1 && fabs(x) <= 1e-9) || isnan(res);
 
-    case 3:
-        res_a = fa(x_val);
-        res_b = fb(x_val);
-        printf("Y(x) = %lf, V(x) = %lf\n", res_a, res_b);
-        printf("Произведение: %lf\n", res_a * res_b);
-        printf("Разность квадратов: %lf\n", (res_a * res_a) - (res_b * res_b));
-        printf("Удвоенная сумма: %lf\n", 2.0 * (res_a + res_b));
-        break;
-
-    default:
-        printf("Неверный выбор пункта меню.\n");
-        break;
+        switch (is_err)
+        {
+        case 1:
+            printf("| %8.3lf |    Ошибка ОДЗ |\n", x);
+            break;
+        default:
+            printf("| %8.3lf | %11.4lf |\n", x, res);
+            break;
+        }
     }
-    printf("\n");
+    printf("-------------------------\n\n");
 
     system("pause");
     return 0;
 }
 
-double fa(double x)
+double Y(double x)
 {
-    double y;
-    y = (3.0 + exp(x - 1.0)) / (1.0 + x * x * fabs(3.1415926535 - tan(1.0 / x)));
-    return y;
+    return (3.0 + exp(x - 1.0)) / (1.0 + x * x * fabs(3.141592653589793 - tan(1.0 / x)));
 }
 
-double fb(double x)
+double V(double x)
 {
-    double v1 = (sin(3.0 * x) + x * x) / cbrt(1.0 + x * x);
-    double v2 = sqrt(x * x + 4.0);
-    double v3 = fabs(x - exp(-4.0));
+    double cond1 = (x <= -4.0) * ((sin(3.0 * x) + x * x) / pow(1.0 + x * x, 1.0 / 3.0));
+    double cond2 = (x > -4.0 && x <= 3.0) * sqrt(x * x + 4.0);
+    double cond3 = (x > 3.0) * fabs(x - exp(-4.0));
 
-    int c1 = (x <= -4.0);
-    int c2 = (x > -4.0 && x <= 3.0);
-    int c3 = (x > 3.0);
-
-    return (v1 * c1) + (v2 * c2) + (v3 * c3);
+    return cond1 + cond2 + cond3;
 }
